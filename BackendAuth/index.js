@@ -15,7 +15,6 @@ const PORT = 4000;
 const secret = process.env.SECRET_KEY;
 const app = express();
 
-
 mongoose
   .connect("mongodb://127.0.0.1:27017/authDB")
   .then(() => {
@@ -57,7 +56,6 @@ function verifyAccessToken(req, res, next) {
   }
 }
 
-
 app.use(
   cors({
     origin: "http://localhost:5173", // or whatever port your Vite frontend runs on
@@ -67,11 +65,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-
 // rate limit middleware on login and refresh toekn route
 app.use("/login", loginLimiter);
 app.use("/auth/refresh", loginLimiter);
-
 
 // Get current user route implemented with token verification i.e no login required every time just use the token
 app.get("/users-me", verifyAccessToken, async (req, res) => {
@@ -128,7 +124,7 @@ app.post("/login", async (req, res) => {
   // Set refresh token as secure httpOnly cookie
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true, // make it true for browser i.e production
+    secure: process.env.NODE_ENV === "production", // change .env file to production when deploying
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
